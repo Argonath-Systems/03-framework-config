@@ -64,6 +64,15 @@ public interface ConfigurationManager {
     void reload();
 
     /**
+     * Loads default values from a resource stream (e.g., from the JAR).
+     * Missing keys in the actual config will be populated from these defaults.
+     * Note: This does not automatically save to disk. Call save() to persist.
+     * 
+     * @param resourceStream The input stream of the default YAML file.
+     */
+    void loadDefaults(java.io.InputStream resourceStream);
+
+    /**
      * Gets the entire configuration map.
      * @return The raw map.
      */

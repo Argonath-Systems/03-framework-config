@@ -77,16 +77,61 @@ public class YamlConfigurationManager implements ConfigurationManager {
     @Override
     public <T> T get(String path, Class<T> type) {
         Object val = getByPath(path);
-        if (val != null && type.isInstance(val)) {
-            return type.cast(val);
+        if (val != null) {
+             if (type.isInstance(val)) {
+                return type.cast(val);
+             } else {
+                 // Type mismatch handling: Log warning and return null (which triggers default)
+                 System.err.println("[Config Warning] Type mismatch for '" + path + "'. Expected " + type.getSimpleName() + ", got " + val.getClass().getSimpleName());
+             }
         }
         return null;
     }
 
     @Override
     public <T> T get(String path, Class<T> type, T defaultValue) {
-        Object val = get(path, type);
+        T val = get(path, type);
         return val != null ? val : defaultValue;
+    }
+
+    @Override
+    public void loadDefaults(InputStream resourceStream) {
+        if (resourceStream == null) return;
+        try {
+            Map<String, Object> defaults = yaml.load(resourceStream);
+            if (defaults != null) {
+                mergeDefaults(this.configData, defaults);
+            }
+        } catch (Exception e) {
+             System.err.println("Failed to load defaults for " + modId + ": " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void mergeDefaults(Map<String, Object> target, Map<String, Object> source) {
+        for (Map.Entry<String, Object> entry : source.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (value instanceof Map) {
+                Object targetValue = target.get(key);
+                if (targetValue instanceof Map) {
+                    // Recurse
+                    mergeDefaults((Map<String, Object>) targetValue, (Map<String, Object>) value);
+                } else if (!target.containsKey(key)) {
+                    // Target missing this section, simply put deep copy/reference
+                    // For safety, we should probably clone, but for simple config reference is okay usually 
+                    // unless we modify defaults. Here we assumes defaults are static structure.
+                    target.put(key, value); 
+                }
+                // If target has a non-map value here, we treat it as valid user override and do nothing
+            } else {
+                // Primitive/List
+                if (!target.containsKey(key)) {
+                    target.put(key, value);
+                }
+            }
+        }
     }
 
     @Override
