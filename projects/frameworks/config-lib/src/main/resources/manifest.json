@@ -1,0 +1,17 @@
+{
+  "Group": "com.argonathsystems.framework",
+  "Name": "ConfigLib",
+  "Version": "1.0.0-SNAPSHOT",
+  "Description": "Configuration Library",
+  "Authors": [
+    {
+      "Name": "LordOfTheTales Team"
+    }
+  ],
+  "ServerVersion": "*",
+  "Dependencies": {},
+  "OptionalDependencies": {},
+  "DisabledByDefault": false,
+  "IncludesAssetPack": false,
+  "Main": "com.argonathsystems.framework.config.ConfigLibPlugin"
+}
