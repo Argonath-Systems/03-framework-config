@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.argonathsystems</groupId>
-        <artifactId>argonathsystems-parent</artifactId>
+        <artifactId>argonath-mithril-forge-core</artifactId>
         <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../../parent-pom/pom.xml</relativePath>
+        <relativePath>../01-platform-core/pom.xml</relativePath>
     </parent>
 
     <groupId>com.argonathsystems.framework</groupId>
-    <artifactId>config-lib</artifactId>
+    <artifactId>argonath-shire-config</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <name>ArgonathSystems Configuration Library</name>
@@ -31,7 +31,7 @@
         </dependency>
         <dependency>
             <groupId>com.argonathsystems.framework</groupId>
-            <artifactId>core-lib</artifactId>
+            <artifactId>argonath-bag-end-core</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
