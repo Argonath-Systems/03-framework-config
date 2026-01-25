@@ -67,7 +67,7 @@ dependencies {
 
 ## 🏷️ Tags
 
-`configuration yaml config settings hot-reload` `library` `framework` `hytale` `lord-of-the-tales` `argonath-systems`
+`configuration yaml config settings hot-reload` `library` `framework` `hytale` `argonath` `argonath-systems`
 
 ## 🔗 Dependencies
 
