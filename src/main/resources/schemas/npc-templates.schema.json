@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://argonath-systems.com/schemas/npc-templates.schema.json",
+  "title": "NPC Templates Configuration",
+  "description": "Defines wealth-contextual NPC templates for city population",
+  "type": "object",
+  "properties": {
+    "NPCPopulation": {
+      "type": "object",
+      "description": "NPC population configuration for generated cities",
+      "properties": {
+        "Enabled": {
+          "type": "boolean",
+          "description": "Whether NPC population is enabled",
+          "default": true
+        },
+        "NPCTemplates": {
+          "type": "object",
+          "description": "NPC templates by profession",
+          "additionalProperties": {
+            "$ref": "#/definitions/NPCTemplate"
+          }
+        },
+        "Density": {
+          "type": "object",
+          "description": "Population density per wealth level",
+          "properties": {
+            "WealthLevel_0": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.3 },
+            "WealthLevel_1": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.5 },
+            "WealthLevel_2": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.7 },
+            "WealthLevel_3": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.8 },
+            "WealthLevel_4": { "type": "number", "minimum": 0, "maximum": 1, "default": 0.9 },
+            "WealthLevel_5": { "type": "number", "minimum": 0, "maximum": 1, "default": 1.0 }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["Enabled", "NPCTemplates"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["NPCPopulation"],
+  "additionalProperties": false,
+  "definitions": {
+    "NPCTemplate": {
+      "type": "object",
+      "description": "Template for a specific NPC profession",
+      "properties": {
+        "BuildingTag": {
+          "type": "string",
+          "description": "Building tag where this NPC spawns (e.g., 'smithy', 'shop')"
+        },
+        "WealthVariants": {
+          "type": "array",
+          "description": "Behavior variants based on wealth level",
+          "items": {
+            "$ref": "#/definitions/WealthVariant"
+          },
+          "minItems": 1
+        }
+      },
+      "required": ["BuildingTag", "WealthVariants"]
+    },
+    "WealthVariant": {
+      "type": "object",
+      "description": "NPC configuration for a specific wealth range",
+      "properties": {
+        "WealthRange": {
+          "type": "array",
+          "description": "Wealth level range [min, max] (0-5)",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "Name": {
+          "type": "string",
+          "description": "Name template with placeholders (${firstName}, ${lastName})"
+        },
+        "NameColor": {
+          "type": "string",
+          "description": "Minecraft color code (e.g., '§7', '§6')",
+          "pattern": "^§[0-9a-fk-or]$"
+        },
+        "DialogTree": {
+          "type": "string",
+          "description": "Path to dialog tree resource"
+        },
+        "Specialization": {
+          "type": "string",
+          "description": "NPC specialization identifier"
+        },
+        "InventoryQuality": {
+          "type": "string",
+          "enum": ["common", "uncommon", "rare", "epic", "legendary"],
+          "description": "Quality tier of NPC inventory"
+        },
+        "PriceMultiplier": {
+          "type": "number",
+          "description": "Price multiplier for trades",
+          "minimum": 0.1,
+          "maximum": 10.0,
+          "default": 1.0
+        },
+        "Backstory": {
+          "type": "string",
+          "description": "Backstory template key"
+        },
+        "QuestTypes": {
+          "type": "array",
+          "description": "Quest types this NPC can offer",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "WealthRange",
+        "Name",
+        "DialogTree",
+        "Specialization",
+        "InventoryQuality",
+        "QuestTypes"
+      ]
+    }
+  }
+}
