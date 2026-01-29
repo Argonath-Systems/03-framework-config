@@ -59,7 +59,7 @@ class YamlConfigurationManagerTest {
             config.reload();
             
             // Verify values persisted
-            assertThat(config.get("server.port", Integer.class)).contains(8080));
+            assertThat(config.get("server.port", Integer.class)).contains(8080);
             assertThat(config.get("server.host", String.class)).contains("localhost");
         }
 
