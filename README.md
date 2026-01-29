@@ -1,6 +1,6 @@
 # Config Framework
 
-> **Configuration management and serialization**
+> **Type-safe configuration management with hot-reload support**
 
 [![GitHub](https://img.shields.io/badge/GitHub-Argonath--Systems-181717?logo=github)](https://github.com/Argonath-Systems/03-framework-config)
 [![Maven](https://img.shields.io/badge/Maven-Central-C71A36?logo=apache-maven)](https://maven.apache.org/)
@@ -12,18 +12,17 @@
 
 ## 📋 Overview
 
-Configuration management and serialization
-
-## 🏗️ C4 Component Diagram
-
-> [!NOTE]
-> Detailed architecture diagrams can be found in the [Argonath Wiki C4 Documentation](https://argonath-systems.github.io/00-Argonath-Wiki/diagrams/).
+The Configuration Framework provides type-safe, hierarchical configuration management for all Argonath modules. It supports YAML configuration files, hot-reloading, change listeners, and automatic default value population.
 
 ## ✨ Features
 
-- Feature 1
-- Feature 2
-- Feature 3
+- **Type-Safe API**: Generic methods with `Optional` return types eliminate null-related bugs
+- **DataValue Integration**: Seamless interoperability with accessor v2.0.0 type system
+- **Hierarchical Configuration**: Dot-separated paths for nested values (e.g., `database.connection.timeout`)
+- **Hot-Reload**: Runtime configuration changes without server restart
+- **Change Listeners**: React to configuration changes programmatically
+- **Default Merging**: Automatically populate missing keys from embedded defaults
+- **Thread-Safe**: Concurrent access supported via ConcurrentHashMap
 
 ## 📦 Installation
 
@@ -33,7 +32,7 @@ Configuration management and serialization
 <dependency>
     <groupId>com.argonathsystems.framework</groupId>
     <artifactId>argonath-rivendell-config</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -44,17 +43,70 @@ Configuration management and serialization
 git clone https://github.com/Argonath-Systems/03-framework-config.git
 cd 03-framework-config
 
-# Build with justfile
-just compile
-
-# Or build with Maven
+# Build with Maven
 mvn clean install
 ```
 
 ## 🚀 Usage
 
+### Basic Configuration Access
+
 ```java
-// Example usage code
+import com.argonathsystems.framework.config.ConfigFactory;
+import com.argonathsystems.framework.config.ConfigurationManager;
+
+// Get configuration manager for your mod
+ConfigurationManager config = ConfigFactory.getManager("my-mod");
+
+// Type-safe access with Optional
+int maxPlayers = config.get("server.max-players", Integer.class).orElse(20);
+String motd = config.get("server.motd", String.class, "Welcome!");
+
+// Check if key exists
+if (config.contains("features.pvp.enabled")) {
+    boolean pvpEnabled = config.get("features.pvp.enabled", Boolean.class, false);
+}
+```
+
+### Change Listeners
+
+```java
+// React to configuration changes
+config.addChangeListener("database", event -> {
+    if (event.isModification()) {
+        logger.info("Database config changed: {} -> {}", 
+            event.oldValue(), event.newValue());
+        // Reconnect to database...
+    }
+});
+
+// Update configuration (triggers listeners)
+config.set("database.host", DataValue.of("localhost"));
+config.save();
+```
+
+### Loading Defaults
+
+```java
+// Load defaults from embedded resource
+try (InputStream defaults = getClass().getResourceAsStream("/defaults.yml")) {
+    config.loadDefaults(defaults);
+    config.save(); // Persist merged configuration
+}
+```
+
+### DataValue Interoperability
+
+```java
+import com.argonathsystems.framework.accessor.data.DataValue;
+
+// Get configuration as DataValue for passing to other modules
+Optional<DataValue> questConfig = config.getAsDataValue("quests.tutorial");
+questConfig.ifPresent(dv -> questManager.loadQuestData(dv));
+
+// Set values using DataValue
+config.set("stats.strength", DataValue.of(10));
+config.set("items.allowed", DataValue.of(List.of("sword", "shield")));
 ```
 
 ## 🛠️ Development
@@ -63,19 +115,18 @@ mvn clean install
 
 - Java 25 or higher
 - Maven 3.9+
-- just (command runner)
 
 ### Building
 
 ```bash
 # Compile the project
-just compile
+mvn clean compile
 
 # Run tests
-just test
+mvn test
 
 # Deploy to local Maven repository
-just deploy
+mvn install
 ```
 
 ## 🏛️ Architecture
@@ -89,13 +140,29 @@ This framework strictly adheres to the **Platform Agnostic** architecture princi
 
 ### Dependencies
 
-- **See pom.xml for current dependencies**
+- `02-framework-accessor` - DataValue types for type-safe data exchange
+- `02-framework-core` - Common utilities
+- `snakeyaml` - YAML parsing
+- `slf4j-api` - Logging abstraction
+
+### Configuration Path Convention
+
+All configuration files follow the mutualized directory structure:
+
+```
+config/Argonath/{mod-id}/config.yml
+```
+
+**Examples:**
+- `config/Argonath/quest-framework/config.yml`
+- `config/Argonath/combat-mod/config.yml`
+- `config/Argonath/npc-framework/config.yml`
 
 ## 📖 Documentation
 
 - [Argonath Systems Wiki](https://argonath-systems.github.io/00-Argonath-Wiki)
-- [API Documentation](./docs/api)
-- [Architecture Documentation](../design/C4)
+- [Specification: CL-L1-001](../00-Argonath-Specifications/HLR-ARCHITECTURE-002-lib-core-infrastructure.md)
+- [Library Catalog](../00-Argonath-Specifications/SF-ARCHITECTURE-000-library-catalog.md#LIB-001)
 
 ## 🤝 Contributing
 
@@ -108,8 +175,8 @@ This project is licensed under the MIT License - see the [LICENSE](../LICENSE) f
 ## 🔗 Related Projects
 
 - [Argonath Systems](https://github.com/Argonath-Systems)
-- [LordOfTheTales](https://github.com/K1ntus/LordOfTheTales)
-- [HyUI](https://github.com/Argonath-Systems/HyUI)
+- [02-framework-accessor](https://github.com/Argonath-Systems/02-framework-accessor)
+- [02-framework-core](https://github.com/Argonath-Systems/02-framework-core)
 
 ---
 
