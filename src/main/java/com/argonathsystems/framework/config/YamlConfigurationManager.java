@@ -246,21 +246,24 @@ public class YamlConfigurationManager implements ConfigurationManager {
     }
 
     @SuppressWarnings("unchecked")
-    private void convertAndStore(Map<String, Object> source, Map<String, DataValue> target) {
-        for (Map.Entry<String, Object> entry : source.entrySet()) {
+    private void convertAndStore(Map<?, ?> source, Map<String, DataValue> target) {
+        for (Map.Entry<?, ?> entry : source.entrySet()) {
+            // Convert key to String (handles both String and numeric keys from YAML)
+            String key = String.valueOf(entry.getKey());
             Object value = entry.getValue();
+            
             if (value instanceof Map) {
                 Map<String, DataValue> nested = new HashMap<>();
-                convertAndStore((Map<String, Object>) value, nested);
-                target.put(entry.getKey(), DataValue.of(nested));
+                convertAndStore((Map<?, ?>) value, nested);
+                target.put(key, DataValue.of(nested));
             } else if (value instanceof List) {
                 List<DataValue> list = new ArrayList<>();
                 for (Object item : (List<?>) value) {
                     list.add(convertToDataValue(item));
                 }
-                target.put(entry.getKey(), DataValue.of(list));
+                target.put(key, DataValue.of(list));
             } else {
-                target.put(entry.getKey(), convertToDataValue(value));
+                target.put(key, convertToDataValue(value));
             }
         }
     }
